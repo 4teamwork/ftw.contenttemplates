@@ -1,0 +1,31 @@
+msgid ""
+msgstr ""
+"Project-Id-Version: PACKAGE VERSION\n"
+"POT-Creation-Date: 2012-10-31 10:09+0000\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI +ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=1; plural=0\n"
+"Preferred-Encodings: utf-8 latin1\n"
+"Domain: ftw.contenttemplates\n"
+
+#: ./ftw/contenttemplates/browser/create.py:21
+msgid "Creation aborted."
+msgstr "Hinzufügen wurde abgebrochen."
+
+#: ./ftw/contenttemplates/browser/create.py:51
+msgid "Please select a template to create a content from it."
+msgstr "Bitte wählen Sie eine Vorlage um einen Inhalt daraus zu erstellen."
+
+#. Default: "Defines the path where the templates are."
+#: ./ftw/contenttemplates/interfaces.py:11
+msgid "help_templates_location"
+msgstr "Geben Sie an, in welchem Ordner die Vorlagen gespeichert sind."
+
+#. Default: "Templates location"
+#: ./ftw/contenttemplates/interfaces.py:10
+msgid "label_templates_location"
+msgstr "Speicherort der Vorlagen"

@@ -1,0 +1,56 @@
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en"
+      xmlns:tal="http://xml.zope.org/namespaces/tal"
+      xmlns:metal="http://xml.zope.org/namespaces/metal"
+      xmlns:i18n="http://xml.zope.org/namespaces/i18n"
+      lang="en"
+      metal:use-macro="context/main_template/macros/master"
+      i18n:domain="amnesty">
+
+  <body>
+
+    <metal:content-title fill-slot="content-title">
+      <metal:content-title define-macro="content-title">
+        <h1 class="documentFirstHeading"
+            i18n:domain="plone"
+            i18n:translate="">Create from Template</h1>
+      </metal:content-title>
+    </metal:content-title>
+
+    <metal:content-description fill-slot="content-description">
+      <metal:content-description define-macro="content-description">
+        <!-- no description -->
+      </metal:content-description>
+    </metal:content-description>
+
+    <metal:content-core fill-slot="content-core">
+      <metal:content-core define-macro="content-core">
+        <tal:templates define="templates view/templates">
+          <form tal:condition="templates" method="post"
+                tal:attributes="action string:${context/absolute_url}/create_from_template">
+            <dl>
+              <dt tal:repeat="template templates">
+                <input type="radio" name="template_id"
+                       tal:attributes="value template/id;
+                                       id string:template_${template/UID}"
+                       />
+                <label tal:attributes="for string:template_${template/UID}"
+                       tal:content="template/Title">
+                </label>
+              </dt>
+            </dl>
+            <div i18n:domain="plone" class="formControls">
+              <input type="submit" name="form.submitted" class="context"
+                     value="Add" i18n:attributes="value"
+                     />
+              <input type="submit" name="form.cancel" class="standalone"
+                     value="Cancel" i18n:attributes="value"
+                     />
+            </div>
+          </form>
+          <span tal:condition="not:templates"
+                i18n:translate="">No templates</span>
+        </tal:templates>
+      </metal:content-core>
+    </metal:content-core>
+  </body>
+</html>

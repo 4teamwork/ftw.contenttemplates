@@ -1,0 +1,13 @@
+<configure
+    xmlns="http://namespaces.zope.org/zope"
+    xmlns:browser="http://namespaces.zope.org/browser"
+    i18n_domain="ftw.contenttemplates">
+
+    <browser:page
+        for="*"
+        name="create_from_template"
+        class=".create_from_template.CreateFromTemplate"
+        permission="zope2.View"
+        />
+
+</configure>
