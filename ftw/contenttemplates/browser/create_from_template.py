@@ -52,5 +52,5 @@ class CreateFromTemplate(BrowserView):
             path = {
                 'query': '/'.join(self.templates_folder.getPhysicalPath()),
                 'depth': 1},
-            portal_types = self.context.getImmediatelyAddableTypes(),
+            portal_type = self.context.immediatelyAddableTypes,
             sort_on="getObjPositionInParent")
