@@ -46,6 +46,21 @@ class TestSetup(unittest.TestCase):
         self._open_url("%s/create_from_template" % self.folder.absolute_url())
         self.assertIn('No templates', self.browser.contents)
 
+    def test_cancel_form(self):
+        self._create_templates([{'id': 'f1', 'type': 'Folder', 'title': 'Folder1'}])
+        self._open_url("%s/create_from_template" % self.folder.absolute_url())
+        self.browser.getControl(name='form.cancel').click()
+        self.assertEqual(self.browser.url, 'http://nohost/plone/folder')
+        self.assertIn('Creation aborted', self.browser.contents)
+
+    def test_nothing_selected(self):
+        self._create_templates([{'id': 'f1', 'type': 'Folder', 'title': 'Folder1'}])
+        self._open_url("%s/create_from_template" % self.folder.absolute_url())
+        self.browser.getControl(name='form.submitted').click()
+        self.assertEqual(self.browser.url, 'http://nohost/plone/folder/create_from_template')
+        self.assertIn('Please select a template to create a content from it.',
+                      self.browser.contents)
+
     def test_list_templates(self):
         self._create_templates([{'id': 'f1', 'type': 'Folder', 'title': 'Folder1'}])
         self._open_url("%s/create_from_template" % self.folder.absolute_url())
