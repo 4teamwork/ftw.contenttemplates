@@ -24,8 +24,10 @@ class CreateFromTemplate(BrowserView):
 
         template_id = self.request.form.get('template_id', None)
         if self.request.form.get('form.submitted', None) and template_id:
-            portal = getToolByName(self.context, 'portal_url').getPortalObject()
-            templates_folder = portal.restrictedTraverse(self.templatefolder_location())
+            portal = getToolByName(self.context,
+                                   'portal_url').getPortalObject()
+            templates_folder = portal.restrictedTraverse(
+                self.templatefolder_location())
             cp = templates_folder.manage_copyObjects(template_id)
             new_objs = self.context.manage_pasteObjects(cp)
             new_id = new_objs and new_objs[0]['new_id'] or None
@@ -34,7 +36,7 @@ class CreateFromTemplate(BrowserView):
                 new_obj.markCreationFlag()
                 # generate a new id, so the id will be renamed after edit
                 new_obj.setId(new_obj.generateUniqueId(new_obj.portal_type))
-                return self.request.RESPONSE.redirect(new_id+'/edit')
+                return self.request.RESPONSE.redirect(new_id + '/edit')
 
         if self.request.form.get('form.submitted', None) and not template_id:
             messages.addStatusMessage(
@@ -52,12 +54,12 @@ class CreateFromTemplate(BrowserView):
         portal = getToolByName(self.context, 'portal_url').getPortalObject()
         catalog = getToolByName(self.context, 'portal_catalog')
         return catalog(
-            path = {
+            path={
                 'query': '%s/%s' % (
                     '/'.join(portal.getPhysicalPath()),
                     self.templatefolder_location()),
                 'depth': 1},
-            portal_type = self.context.immediatelyAddableTypes,
+            portal_type=self.context.immediatelyAddableTypes,
             sort_on="getObjPositionInParent")
 
     def has_addable_templates(self):

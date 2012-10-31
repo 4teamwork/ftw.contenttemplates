@@ -27,6 +27,8 @@ class ContentTemplatesLayer(PloneSandboxLayer):
 
 CONTENT_TEMPLATES_TAGS_FIXTURE = ContentTemplatesLayer()
 CONTENT_TEMPLATES_INTEGRATION_TESTING = IntegrationTesting(
-    bases=(CONTENT_TEMPLATES_TAGS_FIXTURE,), name="ftw.contenttemplates:integration")
+    bases=(CONTENT_TEMPLATES_TAGS_FIXTURE,),
+    name="ftw.contenttemplates:integration")
 CONTENT_TEMPLATES_FUNCTIONAL_TESTING = FunctionalTesting(
-    bases=(CONTENT_TEMPLATES_TAGS_FIXTURE,), name="ftw.contenttemplates:functional")
+    bases=(CONTENT_TEMPLATES_TAGS_FIXTURE,),
+    name="ftw.contenttemplates:functional")
