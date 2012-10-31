@@ -1,11 +1,12 @@
-from ftw.contenttemplates import _
-from ftw.contenttemplates.interfaces import IContentTemplatesSettings
+from Products.CMFCore.utils import getToolByName
 from Products.Five.browser import BrowserView
 from Products.Five.browser.pagetemplatefile import ViewPageTemplateFile
-from Products.CMFCore.utils import getToolByName
+from Products.statusmessages.interfaces import IStatusMessage
+from ftw.contenttemplates import _
+from ftw.contenttemplates.interfaces import IContentTemplatesSettings
+from plone.memoize import view
 from plone.registry.interfaces import IRegistry
 from zope.component import queryUtility
-from Products.statusmessages.interfaces import IStatusMessage
 
 
 class CreateFromTemplate(BrowserView):
@@ -21,16 +22,11 @@ class CreateFromTemplate(BrowserView):
                 type="info")
             return self.request.RESPONSE.redirect(self.context.absolute_url())
 
-        portal = getToolByName(self.context, 'portal_url').getPortalObject()
-        registry = queryUtility(IRegistry)
-        settings = registry.forInterface(IContentTemplatesSettings)
-        self.templates_folder = portal.unrestrictedTraverse(
-            settings.template_folder.lstrip('/').encode('utf8'),
-            None)
-
         template_id = self.request.form.get('template_id', None)
         if self.request.form.get('form.submitted', None) and template_id:
-            cp = self.templates_folder.manage_copyObjects(template_id)
+            portal = getToolByName(self.context, 'portal_url').getPortalObject()
+            templates_folder = portal.restrictedTraverse(self.templatefolder_location())
+            cp = templates_folder.manage_copyObjects(template_id)
             new_objs = self.context.manage_pasteObjects(cp)
             new_id = new_objs and new_objs[0]['new_id'] or None
             if new_id:
@@ -46,11 +42,23 @@ class CreateFromTemplate(BrowserView):
                 type="error")
         return self.template_form()
 
+    def templatefolder_location(self):
+        registry = queryUtility(IRegistry)
+        settings = registry.forInterface(IContentTemplatesSettings)
+        return settings.template_folder.lstrip('/').encode('utf8')
+
+    @view.memoize_contextless
     def templates(self):
+        portal = getToolByName(self.context, 'portal_url').getPortalObject()
         catalog = getToolByName(self.context, 'portal_catalog')
         return catalog(
             path = {
-                'query': '/'.join(self.templates_folder.getPhysicalPath()),
+                'query': '%s/%s' % (
+                    '/'.join(portal.getPhysicalPath()),
+                    self.templatefolder_location()),
                 'depth': 1},
             portal_type = self.context.immediatelyAddableTypes,
             sort_on="getObjPositionInParent")
+
+    def has_addable_templates(self):
+        return len(self.templates())

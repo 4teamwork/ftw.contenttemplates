@@ -8,6 +8,7 @@
         name="create_from_template"
         class=".create_from_template.CreateFromTemplate"
         permission="zope2.View"
+        allowed_attributes="has_addable_templates"
         />
 
 </configure>
