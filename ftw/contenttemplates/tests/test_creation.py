@@ -46,6 +46,17 @@ class TestSetup(unittest.TestCase):
         self._open_url("%s/create_from_template" % self.folder.absolute_url())
         self.assertIn('No templates', self.browser.contents)
 
+    def test_template_not_addable(self):
+        # Normal folder => image is allowed to add
+        self._create_templates([{'id': 'i1', 'type': 'Image', 'title': 'Image1'}])
+        self._open_url("%s/create_from_template" % self.folder.absolute_url())
+        self.assertIn('>Image1</label>', self.browser.contents)
+        # Image is not allowed anymore in this folder
+        self.folder.setImmediatelyAddableTypes(['Folder'])
+        transaction.commit()
+        self._open_url("%s/create_from_template" % self.folder.absolute_url())
+        self.assertIn('No templates', self.browser.contents)
+
     def test_cancel_form(self):
         self._create_templates([{'id': 'f1', 'type': 'Folder', 'title': 'Folder1'}])
         self._open_url("%s/create_from_template" % self.folder.absolute_url())
