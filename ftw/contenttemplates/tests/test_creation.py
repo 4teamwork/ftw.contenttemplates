@@ -38,7 +38,11 @@ class TestSetup(unittest.TestCase):
 
     def test_action_exists(self):
         self._open_url(self.folder.absolute_url())
-        # create_from_template action in add menu
+        # create_from_template action is not shown, there are no addable templates
+        self.assertNotIn('create_from_template', self.browser.contents)
+        # action is shown if there are addable templates
+        self._create_templates([{'id': 'f1', 'type': 'Folder', 'title': 'Folder1'}])
+        self._open_url(self.folder.absolute_url())
         self.assertIn('create_from_template', self.browser.contents)
 
     def test_no_templates(self):
