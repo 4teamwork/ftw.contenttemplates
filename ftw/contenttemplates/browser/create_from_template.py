@@ -59,7 +59,7 @@ class CreateFromTemplate(BrowserView):
                     '/'.join(portal.getPhysicalPath()),
                     self.templatefolder_location()),
                 'depth': 1},
-            portal_type=self.context.immediatelyAddableTypes,
+            portal_type=self.context.getImmediatelyAddableTypes(),
             sort_on="getObjPositionInParent")
 
     def has_addable_templates(self):
