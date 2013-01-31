@@ -1,4 +1,5 @@
 from Products.CMFCore.utils import getToolByName
+from Products.CMFPlone.interfaces.siteroot import IPloneSiteRoot
 from Products.Five.browser import BrowserView
 from Products.Five.browser.pagetemplatefile import ViewPageTemplateFile
 from Products.statusmessages.interfaces import IStatusMessage
@@ -51,6 +52,9 @@ class CreateFromTemplate(BrowserView):
 
     @view.memoize_contextless
     def templates(self):
+        if IPloneSiteRoot.providedBy(self.context):
+            return []
+
         portal = getToolByName(self.context, 'portal_url').getPortalObject()
         catalog = getToolByName(self.context, 'portal_catalog')
         return catalog(

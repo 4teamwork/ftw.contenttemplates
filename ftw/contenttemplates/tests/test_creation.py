@@ -156,3 +156,8 @@ class TestSetup(unittest.TestCase):
         # The id should be generated from title
         self.assertEqual(self.browser.url,
                          'http://nohost/plone/folder/mynews')
+
+    def test_does_not_fail_on_plone_site(self):
+        portal = self.layer['portal']
+        view = portal.restrictedTraverse('@@create_from_template')
+        self.assertFalse(view.has_addable_templates())
