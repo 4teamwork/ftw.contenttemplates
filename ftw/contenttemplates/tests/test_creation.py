@@ -31,17 +31,20 @@ class TestSetup(unittest.TestCase):
         # create a template / now there should be a template
         for template in templates:
             self.templates.invokeFactory(
-                id = template['id'],
-                type_name = template['type'],
-                title = template['title'])
+                id=template['id'],
+                type_name=template['type'],
+                title=template['title'])
         transaction.commit()
 
     def test_action_exists(self):
         self._open_url(self.folder.absolute_url())
-        # create_from_template action is not shown, there are no addable templates
+        # create_from_template action is not shown, there are
+        # no addable templates
         self.assertNotIn('create_from_template', self.browser.contents)
         # action is shown if there are addable templates
-        self._create_templates([{'id': 'f1', 'type': 'Folder', 'title': 'Folder1'}])
+        self._create_templates([{'id': 'f1',
+                                 'type': 'Folder',
+                                 'title': 'Folder1'}])
         self._open_url(self.folder.absolute_url())
         self.assertIn('create_from_template', self.browser.contents)
 
@@ -52,7 +55,9 @@ class TestSetup(unittest.TestCase):
 
     def test_template_not_addable(self):
         # Normal folder => image is allowed to add
-        self._create_templates([{'id': 'i1', 'type': 'Image', 'title': 'Image1'}])
+        self._create_templates([{'id': 'i1',
+                                 'type': 'Image',
+                                 'title': 'Image1'}])
         self._open_url("%s/create_from_template" % self.folder.absolute_url())
         self.assertIn('>Image1</label>', self.browser.contents)
         # Image is not allowed anymore in this folder
@@ -62,22 +67,29 @@ class TestSetup(unittest.TestCase):
         self.assertIn('No templates', self.browser.contents)
 
     def test_cancel_form(self):
-        self._create_templates([{'id': 'f1', 'type': 'Folder', 'title': 'Folder1'}])
+        self._create_templates([{'id': 'f1',
+                                 'type': 'Folder',
+                                 'title': 'Folder1'}])
         self._open_url("%s/create_from_template" % self.folder.absolute_url())
         self.browser.getControl(name='form.cancel').click()
         self.assertEqual(self.browser.url, 'http://nohost/plone/folder')
         self.assertIn('Creation aborted', self.browser.contents)
 
     def test_nothing_selected(self):
-        self._create_templates([{'id': 'f1', 'type': 'Folder', 'title': 'Folder1'}])
+        self._create_templates([{'id': 'f1',
+                                 'type': 'Folder',
+                                 'title': 'Folder1'}])
         self._open_url("%s/create_from_template" % self.folder.absolute_url())
         self.browser.getControl(name='form.submitted').click()
-        self.assertEqual(self.browser.url, 'http://nohost/plone/folder/create_from_template')
+        self.assertEqual(self.browser.url,
+                         'http://nohost/plone/folder/create_from_template')
         self.assertIn('Please select a template to create a content from it.',
                       self.browser.contents)
 
     def test_list_templates(self):
-        self._create_templates([{'id': 'f1', 'type': 'Folder', 'title': 'Folder1'}])
+        self._create_templates([{'id': 'f1',
+                                 'type': 'Folder',
+                                 'title': 'Folder1'}])
         self._open_url("%s/create_from_template" % self.folder.absolute_url())
         self.assertIn('Folder1', self.browser.contents)
 
@@ -89,16 +101,21 @@ class TestSetup(unittest.TestCase):
         transaction.commit()
         self._open_url("%s/create_from_template" % self.folder.absolute_url())
         # Folder1 should be last element
-        self.assertIn('Folder1</label>\n              </dt>\n            </dl>',
+        self.assertIn('Folder1</label>\n              </dt>\n'
+                      '            </dl>',
                       self.browser.contents)
 
     def test_copy_template(self):
-        self._create_templates([{'id': 'f1', 'type': 'Folder', 'title': 'Folder1'}])
+        self._create_templates([{'id': 'f1',
+                                 'type': 'Folder',
+                                 'title': 'Folder1'}])
         self._open_url("%s/create_from_template" % self.folder.absolute_url())
         # select template f1
-        self.browser.getControl(name='template_id').getControl(value='f1').click()
+        self.browser.getControl(name='template_id').getControl(
+            value='f1').click()
         self.assertTrue(
-            self.browser.getControl(name='template_id').getControl(value='f1').selected)
+            self.browser.getControl(name='template_id').getControl(
+                value='f1').selected)
         self.browser.getControl(name='form.submitted').click()
         self.assertEqual(
             self.browser.url,
@@ -110,24 +127,30 @@ class TestSetup(unittest.TestCase):
                                  'title': 'Folder1',
                                  'description': 'A simple description.'}])
         self._open_url("%s/create_from_template" % self.folder.absolute_url())
-        self.browser.getControl(name='template_id').getControl(value='f1').click()
+        self.browser.getControl(name='template_id').getControl(
+            value='f1').click()
         self.browser.getControl(name='form.submitted').click()
         # Change the title
         self.browser.getControl(name='title').value = 'MyFolder'
         self.browser.getControl(name='form.button.save').click()
         # The id should be generated from title
-        self.assertEqual(self.browser.url, 'http://nohost/plone/folder/myfolder/')
+        self.assertEqual(self.browser.url,
+                         'http://nohost/plone/folder/myfolder/')
         self.assertEqual(self.folder.myfolder.Description(),
                          self.templates.f1.Description())
 
     def test_change_id_news(self):
         # the portal type in generated id should contain _ instead of spaces
-        self._create_templates([{'id': 'n1', 'type': 'News Item', 'title': 'News1'}])
+        self._create_templates([{'id': 'n1',
+                                 'type': 'News Item',
+                                 'title': 'News1'}])
         self._open_url("%s/create_from_template" % self.folder.absolute_url())
-        self.browser.getControl(name='template_id').getControl(value='n1').click()
+        self.browser.getControl(name='template_id').getControl(
+            value='n1').click()
         self.browser.getControl(name='form.submitted').click()
         # Change the title
         self.browser.getControl(name='title').value = 'MyNews'
         self.browser.getControl(name='form.button.save').click()
         # The id should be generated from title
-        self.assertEqual(self.browser.url, 'http://nohost/plone/folder/mynews')
+        self.assertEqual(self.browser.url,
+                         'http://nohost/plone/folder/mynews')
