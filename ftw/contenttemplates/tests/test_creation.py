@@ -1,9 +1,10 @@
-import unittest2 as unittest
-import transaction
+from Products.ATContentTypes.lib import constraintypes
 from ftw.contenttemplates.testing import CONTENT_TEMPLATES_FUNCTIONAL_TESTING
-from plone.app.testing import login, setRoles
 from plone.app.testing import TEST_USER_ID, TEST_USER_NAME, TEST_USER_PASSWORD
+from plone.app.testing import login, setRoles
 from plone.testing.z2 import Browser
+import transaction
+import unittest2 as unittest
 
 
 class TestSetup(unittest.TestCase):
@@ -61,6 +62,7 @@ class TestSetup(unittest.TestCase):
         self._open_url("%s/create_from_template" % self.folder.absolute_url())
         self.assertIn('>Image1</label>', self.browser.contents)
         # Image is not allowed anymore in this folder
+        self.folder.setConstrainTypesMode(constraintypes.ENABLED)
         self.folder.setImmediatelyAddableTypes(['Folder'])
         transaction.commit()
         self._open_url("%s/create_from_template" % self.folder.absolute_url())
