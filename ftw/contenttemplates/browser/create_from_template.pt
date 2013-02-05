@@ -29,8 +29,8 @@
                 tal:attributes="action string:${context/absolute_url}/create_from_template">
             <dl>
               <dt tal:repeat="template templates">
-                <input type="radio" name="template_id"
-                       tal:attributes="value template/id;
+                <input type="radio" name="template_path"
+                       tal:attributes="value template/getPath;
                                        id string:template_${template/UID}"
                        />
                 <label tal:attributes="for string:template_${template/UID}"

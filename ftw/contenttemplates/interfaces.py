@@ -6,10 +6,11 @@ from zope.interface import Interface
 class IContentTemplatesSettings(Interface):
     """Interface for registry entries.
     """
-    template_folder = schema.Text(
+    template_folder = schema.List(
         title=_(u'label_templates_location', default=u'Templates location'),
         description=_(u'help_templates_location',
             default=u'Defines the path where the templates are.'),
-        default=u'/vorlagen',
+        value_type=schema.TextLine(required=True),
+        default=[u'/vorlagen'],
         required=True,
     )

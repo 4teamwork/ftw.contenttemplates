@@ -1,3 +1,4 @@
+from Acquisition import aq_parent, aq_inner
 from Products.CMFCore.utils import getToolByName
 from Products.CMFPlone.interfaces.siteroot import IPloneSiteRoot
 from Products.CMFPlone.utils import base_hasattr
@@ -24,13 +25,14 @@ class CreateFromTemplate(BrowserView):
                 type="info")
             return self.request.RESPONSE.redirect(self.context.absolute_url())
 
-        template_id = self.request.form.get('template_id', None)
-        if self.request.form.get('form.submitted', None) and template_id:
+        template_path = self.request.form.get('template_path', None)
+        if self.request.form.get('form.submitted', None) and template_path:
             portal = getToolByName(self.context,
                                    'portal_url').getPortalObject()
-            templates_folder = portal.restrictedTraverse(
-                self.templatefolder_location())
-            cp = templates_folder.manage_copyObjects(template_id)
+            template = portal.restrictedTraverse(
+                template_path, None)
+            templates_folder = aq_parent(aq_inner(template))
+            cp = templates_folder.manage_copyObjects(template.getId())
             new_objs = self.context.manage_pasteObjects(cp)
             new_id = new_objs and new_objs[0]['new_id'] or None
             if new_id:
@@ -40,16 +42,19 @@ class CreateFromTemplate(BrowserView):
                 new_obj.setId(new_obj.generateUniqueId(new_obj.portal_type))
                 return self.request.RESPONSE.redirect(new_id + '/edit')
 
-        if self.request.form.get('form.submitted', None) and not template_id:
+        if self.request.form.get('form.submitted', None) and not template_path:
             messages.addStatusMessage(
                 _(u'Please select a template to create a content from it.'),
                 type="error")
         return self.template_form()
 
-    def templatefolder_location(self):
+    def templatefolder_locations(self):
         registry = queryUtility(IRegistry)
         settings = registry.forInterface(IContentTemplatesSettings)
-        return settings.template_folder.lstrip('/').encode('utf8')
+
+        return [path.lstrip('/').encode('utf8')
+                for path in settings.template_folder
+                if path]
 
     @view.memoize_contextless
     def templates(self):
@@ -61,14 +66,17 @@ class CreateFromTemplate(BrowserView):
 
         portal = getToolByName(self.context, 'portal_url').getPortalObject()
         catalog = getToolByName(self.context, 'portal_catalog')
-        return catalog(
-            path={
-                'query': '%s/%s' % (
-                    '/'.join(portal.getPhysicalPath()),
-                    self.templatefolder_location()),
-                'depth': 1},
-            portal_type=self.context.getImmediatelyAddableTypes(),
-            sort_on="getObjPositionInParent")
+        brains = []
+        for templatefolder_location in self.templatefolder_locations():
+            brains.extend(catalog(
+                    path={
+                        'query': '%s/%s' % (
+                            '/'.join(portal.getPhysicalPath()),
+                            templatefolder_location),
+                        'depth': 1},
+                    portal_type=self.context.getImmediatelyAddableTypes(),
+                    sort_on="getObjPositionInParent"))
+        return brains
 
     def has_addable_templates(self):
         return len(self.templates())

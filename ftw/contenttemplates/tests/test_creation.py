@@ -1,10 +1,13 @@
 from Products.ATContentTypes.lib import constraintypes
+from ftw.contenttemplates.interfaces import IContentTemplatesSettings
 from ftw.contenttemplates.testing import CONTENT_TEMPLATES_FUNCTIONAL_TESTING
 from plone.app.testing import TEST_USER_ID, TEST_USER_NAME, TEST_USER_PASSWORD
 from plone.app.testing import login, setRoles
+from plone.registry.interfaces import IRegistry
 from plone.testing.z2 import Browser
 import transaction
 import unittest2 as unittest
+from zope.component import queryUtility
 
 
 class TestSetup(unittest.TestCase):
@@ -21,6 +24,7 @@ class TestSetup(unittest.TestCase):
         # create templates folder
         self.templates = portal[portal.invokeFactory(id='vorlagen',
                                                      type_name='Folder')]
+        self.templates_path = '/'.join(self.templates.getPhysicalPath())
         transaction.commit()
 
     def _open_url(self, url):
@@ -28,10 +32,12 @@ class TestSetup(unittest.TestCase):
                 TEST_USER_NAME, TEST_USER_PASSWORD))
         self.browser.open(url)
 
-    def _create_templates(self, templates):
+    def _create_templates(self, templates, location=None):
         # create a template / now there should be a template
+        if not location:
+            location = self.templates
         for template in templates:
-            self.templates.invokeFactory(
+            location.invokeFactory(
                 id=template['id'],
                 type_name=template['type'],
                 title=template['title'])
@@ -113,11 +119,11 @@ class TestSetup(unittest.TestCase):
                                  'title': 'Folder1'}])
         self._open_url("%s/create_from_template" % self.folder.absolute_url())
         # select template f1
-        self.browser.getControl(name='template_id').getControl(
-            value='f1').click()
+        self.browser.getControl(name='template_path').getControl(
+            value='%s/f1' % self.templates_path).click()
         self.assertTrue(
-            self.browser.getControl(name='template_id').getControl(
-                value='f1').selected)
+            self.browser.getControl(name='template_path').getControl(
+                value='%s/f1' % self.templates_path).selected)
         self.browser.getControl(name='form.submitted').click()
         self.assertEqual(
             self.browser.url,
@@ -129,8 +135,8 @@ class TestSetup(unittest.TestCase):
                                  'title': 'Folder1',
                                  'description': 'A simple description.'}])
         self._open_url("%s/create_from_template" % self.folder.absolute_url())
-        self.browser.getControl(name='template_id').getControl(
-            value='f1').click()
+        self.browser.getControl(name='template_path').getControl(
+            value='%s/f1' % self.templates_path).click()
         self.browser.getControl(name='form.submitted').click()
         # Change the title
         self.browser.getControl(name='title').value = 'MyFolder'
@@ -147,8 +153,8 @@ class TestSetup(unittest.TestCase):
                                  'type': 'News Item',
                                  'title': 'News1'}])
         self._open_url("%s/create_from_template" % self.folder.absolute_url())
-        self.browser.getControl(name='template_id').getControl(
-            value='n1').click()
+        self.browser.getControl(name='template_path').getControl(
+            value='%s/n1' % self.templates_path).click()
         self.browser.getControl(name='form.submitted').click()
         # Change the title
         self.browser.getControl(name='title').value = 'MyNews'
@@ -161,3 +167,29 @@ class TestSetup(unittest.TestCase):
         portal = self.layer['portal']
         view = portal.restrictedTraverse('@@create_from_template')
         self.assertFalse(view.has_addable_templates())
+
+    def test_two_templatefolders(self):
+        self._create_templates([{'id': 'n1',
+                                 'type': 'News Item',
+                                 'title': 'News1'},
+                                {'id': 'subfolder',
+                                 'type': 'Folder',
+                                 'title': 'Subfolder'}])
+        self._create_templates([{'id': 'subnews',
+                                 'type': 'News Item',
+                                 'title': 'Subnews'}],
+                               location=self.templates['subfolder'])
+        self.assertIn('subnews', self.templates['subfolder'].objectIds())
+        # subnews not in templates
+        self._open_url("%s/create_from_template" % self.folder.absolute_url())
+        self.assertNotIn('>Subnews</label>', self.browser.contents)
+
+        # add subfolder path to templates
+        registry = queryUtility(IRegistry)
+        settings = registry.forInterface(IContentTemplatesSettings)
+        settings.template_folder = [u'/vorlagen', u'/vorlagen/subfolder']
+        transaction.commit()
+
+        # subnews is in templates
+        self._open_url("%s/create_from_template" % self.folder.absolute_url())
+        self.assertIn('>Subnews</label>', self.browser.contents)
