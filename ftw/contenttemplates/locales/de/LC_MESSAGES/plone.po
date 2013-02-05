@@ -13,4 +13,4 @@ msgstr ""
 "Domain: plone\n"
 
 msgid "Create from Template"
-msgstr "Inhalt aus Vorlage erstellen"
+msgstr "Inhalt aus Vorlage"
