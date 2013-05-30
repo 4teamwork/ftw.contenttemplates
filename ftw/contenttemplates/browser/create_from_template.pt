@@ -33,7 +33,8 @@
                        tal:attributes="value template/getPath;
                                        id string:template_${template/UID}"
                        />
-                <label tal:attributes="for string:template_${template/UID}"
+                <label tal:attributes="for string:template_${template/UID};
+                                       class python:view.css_class(template)"
                        tal:content="template/Title">
                 </label>
               </dt>

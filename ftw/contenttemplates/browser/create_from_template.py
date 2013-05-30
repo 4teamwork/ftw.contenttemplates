@@ -7,6 +7,7 @@ from Products.Five.browser.pagetemplatefile import ViewPageTemplateFile
 from Products.statusmessages.interfaces import IStatusMessage
 from ftw.contenttemplates import _
 from ftw.contenttemplates.interfaces import IContentTemplatesSettings
+from plone.i18n.normalizer.interfaces import IIDNormalizer
 from plone.memoize import view
 from plone.registry.interfaces import IRegistry
 from zope.component import queryUtility
@@ -18,6 +19,9 @@ class CreateFromTemplate(BrowserView):
 
     def __call__(self):
         messages = IStatusMessage(self.request)
+        # define normalizer
+        idnormalizer = queryUtility(IIDNormalizer)
+        self.normalize = idnormalizer.normalize
         # handle cancel
         if self.request.form.get('form.cancel', None):
             messages.addStatusMessage(
@@ -55,6 +59,11 @@ class CreateFromTemplate(BrowserView):
         return [path.lstrip('/').encode('utf8')
                 for path in settings.template_folder
                 if path]
+
+    def css_class(self, template):
+        """ Returns the objects css class containing the normalized portal type for sprite.
+        """
+        return "contenttype-%s" % self.normalize(template.portal_type)
 
     @view.memoize_contextless
     def templates(self):
