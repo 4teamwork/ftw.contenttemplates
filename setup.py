@@ -5,6 +5,7 @@ version = '1.1.dev0'
 
 tests_require = [
     'plone.app.testing',
+    'ftw.builder',
     ]
 
 setup(name='ftw.contenttemplates',
