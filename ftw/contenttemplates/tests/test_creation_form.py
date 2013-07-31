@@ -1,13 +1,10 @@
-from Products.ATContentTypes.lib import constraintypes
-from ftw.contenttemplates.interfaces import IContentTemplatesSettings
 from ftw.contenttemplates.testing import CONTENT_TEMPLATES_FUNCTIONAL_TESTING
-from plone.app.testing import TEST_USER_ID, TEST_USER_NAME, TEST_USER_PASSWORD
 from plone.app.testing import login, setRoles
-from plone.registry.interfaces import IRegistry
+from plone.app.testing import TEST_USER_ID, TEST_USER_NAME, TEST_USER_PASSWORD
 from plone.testing.z2 import Browser
+from Products.ATContentTypes.lib import constraintypes
 import transaction
 import unittest2 as unittest
-from zope.component import queryUtility
 
 
 class TestSetup(unittest.TestCase):
@@ -43,12 +40,13 @@ class TestSetup(unittest.TestCase):
                 title=template['title'])
         transaction.commit()
 
-    def test_action_exists(self):
+    def test_action_does_not_exists(self):
         self._open_url(self.folder.absolute_url())
         # create_from_template action is not shown, there are
         # no addable templates
         self.assertNotIn('create_from_template', self.browser.contents)
-        # action is shown if there are addable templates
+
+    def test_action_exists(self):
         self._create_templates([{'id': 'f1',
                                  'type': 'Folder',
                                  'title': 'Folder1'}])
@@ -166,30 +164,5 @@ class TestSetup(unittest.TestCase):
     def test_does_not_fail_on_plone_site(self):
         portal = self.layer['portal']
         view = portal.restrictedTraverse('@@create_from_template')
-        self.assertFalse(view.has_addable_templates())
-
-    def test_two_templatefolders(self):
-        self._create_templates([{'id': 'n1',
-                                 'type': 'News Item',
-                                 'title': 'News1'},
-                                {'id': 'subfolder',
-                                 'type': 'Folder',
-                                 'title': 'Subfolder'}])
-        self._create_templates([{'id': 'subnews',
-                                 'type': 'News Item',
-                                 'title': 'Subnews'}],
-                               location=self.templates['subfolder'])
-        self.assertIn('subnews', self.templates['subfolder'].objectIds())
-        # subnews not in templates
-        self._open_url("%s/create_from_template" % self.folder.absolute_url())
-        self.assertNotIn('>Subnews</label>', self.browser.contents)
-
-        # add subfolder path to templates
-        registry = queryUtility(IRegistry)
-        settings = registry.forInterface(IContentTemplatesSettings)
-        settings.template_folder = [u'/vorlagen', u'/vorlagen/subfolder']
-        transaction.commit()
-
-        # subnews is in templates
-        self._open_url("%s/create_from_template" % self.folder.absolute_url())
-        self.assertIn('>Subnews</label>', self.browser.contents)
+        self.assertIn('Creation from template is on root not possible',
+          view())
