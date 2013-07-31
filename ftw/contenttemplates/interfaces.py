@@ -14,3 +14,24 @@ class IContentTemplatesSettings(Interface):
         default=[u'/vorlagen'],
         required=True,
     )
+
+
+class ICreateFromTemplate(Interface):
+    """Create content from a template"""
+
+    def __init__(context, request):
+        """Adapts context and request.
+        """
+
+    def templates():
+        """Return all possible templates"""
+
+    def has_templates():
+        """True if there are templates"""
+
+    def templatefolder_locations():
+        """Returns all templates locations (containing templates)"""
+
+    def create(template_path, **kwargs):
+        """Create content from a template path"""
+
