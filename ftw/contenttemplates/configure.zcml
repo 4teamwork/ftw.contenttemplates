@@ -18,6 +18,6 @@
       provides="Products.GenericSetup.interfaces.EXTENSION"
       />
 
-    <adapter factory=".creator.Creator" />
+    <adapter factory=".factory.TemplateFactory" />
 
 </configure>

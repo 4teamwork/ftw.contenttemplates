@@ -12,7 +12,7 @@ from zope.interface import implements
 from zope.interface import Interface
 
 
-class Creator(object):
+class TemplateFactory(object):
     """Create content by copy&paste"""
 
     implements(ICreateFromTemplate)

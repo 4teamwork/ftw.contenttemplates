@@ -14,13 +14,13 @@ class CreateFromTemplate(BrowserView):
 
     def __call__(self):
 
-        creator = queryMultiAdapter(
+        templatefactory = queryMultiAdapter(
             (self.context, self.request), ICreateFromTemplate)
 
-        if creator is None:
+        if templatefactory is None:
             return 'Creation from template is on root not possible'
 
-        self.templates = creator.templates()
+        self.templates = templatefactory.templates()
 
         messages = IStatusMessage(self.request)
 
@@ -34,7 +34,7 @@ class CreateFromTemplate(BrowserView):
         template_path = self.request.form.get('template_path', None)
         if self.request.form.get('form.submitted', None) and template_path:
 
-            obj = creator.create(template_path)
+            obj = templatefactory.create(template_path)
             url = '%s/edit' % obj.absolute_url()
 
             return self.request.RESPONSE.redirect(url)
@@ -56,7 +56,7 @@ class CreateFromTemplate(BrowserView):
 
     def has_addable_templates(self):
         """Make traversable"""
-        creator = queryMultiAdapter(
+        templatefactory = queryMultiAdapter(
             (self.context, self.request), ICreateFromTemplate)
 
-        return creator.has_addable_templates()
+        return templatefactory.has_addable_templates()
