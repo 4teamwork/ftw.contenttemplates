@@ -4,6 +4,9 @@ Changelog
 1.1 (unreleased)
 ----------------
 
+- Refactor template factory, so that it is more customizable.
+  [mathias.leimgruber]
+
 - Add contenttype class in menu, so the sprites are used there as well.
   [Julian Infanger]
 
