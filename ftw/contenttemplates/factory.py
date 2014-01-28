@@ -37,9 +37,11 @@ class TemplateFactory(object):
         new_id = new_objs and new_objs[0]['new_id'] or None
         if new_id:
             new_obj = self.context.restrictedTraverse(new_id, None)
-            new_obj.markCreationFlag()
-            # generate a new id, so the id will be renamed after edit
-            new_obj.setId(new_obj.generateUniqueId(new_obj.portal_type))
+            if hasattr(new_obj, 'markCreationFlag'):
+                # Only Archetypes supports this, not dexterity.
+                new_obj.markCreationFlag()
+                # generate a new id, so the id will be renamed after edit
+                new_obj.setId(new_obj.generateUniqueId(new_obj.portal_type))
 
         return new_obj
 
