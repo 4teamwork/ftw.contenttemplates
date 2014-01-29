@@ -5,7 +5,7 @@ from plone.memoize import view
 from plone.registry.interfaces import IRegistry
 from Products.CMFCore.interfaces._content import IContentish
 from Products.CMFCore.utils import getToolByName
-from Products.CMFPlone.utils import base_hasattr
+from Products.CMFPlone.interfaces.constrains import ISelectableConstrainTypes
 from zope.component import adapts
 from zope.component import queryUtility
 from zope.interface import implements
@@ -37,15 +37,18 @@ class TemplateFactory(object):
         new_id = new_objs and new_objs[0]['new_id'] or None
         if new_id:
             new_obj = self.context.restrictedTraverse(new_id, None)
-            new_obj.markCreationFlag()
-            # generate a new id, so the id will be renamed after edit
-            new_obj.setId(new_obj.generateUniqueId(new_obj.portal_type))
+            if hasattr(new_obj, 'markCreationFlag'):
+                # Only Archetypes supports this, not dexterity.
+                new_obj.markCreationFlag()
+                # generate a new id, so the id will be renamed after edit
+                new_obj.setId(new_obj.generateUniqueId(new_obj.portal_type))
 
         return new_obj
 
     @view.memoize_contextless
     def templates(self):
-        if not base_hasattr(self.context, 'getImmediatelyAddableTypes'):
+        constrain = ISelectableConstrainTypes(self.context, None)
+        if constrain is None:
             return []
 
         portal = getToolByName(self.context, 'portal_url').getPortalObject()
@@ -58,7 +61,7 @@ class TemplateFactory(object):
                             '/'.join(portal.getPhysicalPath()),
                             templatefolder_location),
                         'depth': 1},
-                    portal_type=self.context.getImmediatelyAddableTypes(),
+                    portal_type=constrain.getImmediatelyAddableTypes(),
                     sort_on="getObjPositionInParent"))
         return brains
 

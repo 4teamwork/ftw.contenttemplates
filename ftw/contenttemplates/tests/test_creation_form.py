@@ -1,8 +1,10 @@
 from ftw.contenttemplates.testing import CONTENT_TEMPLATES_FUNCTIONAL_TESTING
+from ftw.contenttemplates.testing import HAS_DEXTERITY
 from plone.app.testing import login, setRoles
 from plone.app.testing import TEST_USER_ID, TEST_USER_NAME, TEST_USER_PASSWORD
 from plone.testing.z2 import Browser
 from Products.ATContentTypes.lib import constraintypes
+from Products.CMFPlone.interfaces.constrains import ISelectableConstrainTypes
 import transaction
 import unittest2 as unittest
 
@@ -10,6 +12,7 @@ import unittest2 as unittest
 class TestSetup(unittest.TestCase):
 
     layer = CONTENT_TEMPLATES_FUNCTIONAL_TESTING
+    folder_type = 'Folder'
 
     def setUp(self):
         portal = self.layer['portal']
@@ -17,10 +20,10 @@ class TestSetup(unittest.TestCase):
         setRoles(portal, TEST_USER_ID, ['Manager'])
         self.browser = Browser(self.layer['app'])
         self.folder = portal[portal.invokeFactory(id='folder',
-                                                  type_name='Folder')]
+                                                  type_name=self.folder_type)]
         # create templates folder
         self.templates = portal[portal.invokeFactory(id='vorlagen',
-                                                     type_name='Folder')]
+                                                     type_name=self.folder_type)]
         self.templates_path = '/'.join(self.templates.getPhysicalPath())
         transaction.commit()
 
@@ -48,7 +51,7 @@ class TestSetup(unittest.TestCase):
 
     def test_action_exists(self):
         self._create_templates([{'id': 'f1',
-                                 'type': 'Folder',
+                                 'type': self.folder_type,
                                  'title': 'Folder1'}])
         self._open_url(self.folder.absolute_url())
         self.assertIn('create_from_template', self.browser.contents)
@@ -66,15 +69,16 @@ class TestSetup(unittest.TestCase):
         self._open_url("%s/create_from_template" % self.folder.absolute_url())
         self.assertIn('>Image1</label>', self.browser.contents)
         # Image is not allowed anymore in this folder
-        self.folder.setConstrainTypesMode(constraintypes.ENABLED)
-        self.folder.setImmediatelyAddableTypes(['Folder'])
+        constrain = ISelectableConstrainTypes(self.folder)
+        constrain.setConstrainTypesMode(constraintypes.ENABLED)
+        constrain.setImmediatelyAddableTypes([self.folder_type])
         transaction.commit()
         self._open_url("%s/create_from_template" % self.folder.absolute_url())
         self.assertIn('No templates', self.browser.contents)
 
     def test_cancel_form(self):
         self._create_templates([{'id': 'f1',
-                                 'type': 'Folder',
+                                 'type': self.folder_type,
                                  'title': 'Folder1'}])
         self._open_url("%s/create_from_template" % self.folder.absolute_url())
         self.browser.getControl(name='form.cancel').click()
@@ -83,7 +87,7 @@ class TestSetup(unittest.TestCase):
 
     def test_nothing_selected(self):
         self._create_templates([{'id': 'f1',
-                                 'type': 'Folder',
+                                 'type': self.folder_type,
                                  'title': 'Folder1'}])
         self._open_url("%s/create_from_template" % self.folder.absolute_url())
         self.browser.getControl(name='form.submitted').click()
@@ -94,15 +98,15 @@ class TestSetup(unittest.TestCase):
 
     def test_list_templates(self):
         self._create_templates([{'id': 'f1',
-                                 'type': 'Folder',
+                                 'type': self.folder_type,
                                  'title': 'Folder1'}])
         self._open_url("%s/create_from_template" % self.folder.absolute_url())
         self.assertIn('Folder1', self.browser.contents)
 
     def test_templates_order(self):
         self._create_templates([
-                {'id': 'f1', 'type': 'Folder', 'title': 'Folder1'},
-                {'id': 'f2', 'type': 'Folder', 'title': 'Folder2'}])
+                {'id': 'f1', 'type': self.folder_type, 'title': 'Folder1'},
+                {'id': 'f2', 'type': self.folder_type, 'title': 'Folder2'}])
         self.templates.moveObjectToPosition('f1', 1)
         transaction.commit()
         self._open_url("%s/create_from_template" % self.folder.absolute_url())
@@ -113,7 +117,7 @@ class TestSetup(unittest.TestCase):
 
     def test_copy_template(self):
         self._create_templates([{'id': 'f1',
-                                 'type': 'Folder',
+                                 'type': self.folder_type,
                                  'title': 'Folder1'}])
         self._open_url("%s/create_from_template" % self.folder.absolute_url())
         # select template f1
@@ -129,7 +133,7 @@ class TestSetup(unittest.TestCase):
 
     def test_change_id(self):
         self._create_templates([{'id': 'f1',
-                                 'type': 'Folder',
+                                 'type': self.folder_type,
                                  'title': 'Folder1',
                                  'description': 'A simple description.'}])
         self._open_url("%s/create_from_template" % self.folder.absolute_url())
@@ -166,3 +170,21 @@ class TestSetup(unittest.TestCase):
         view = portal.restrictedTraverse('@@create_from_template')
         self.assertIn('Creation from template is on root not possible',
           view())
+
+
+if HAS_DEXTERITY:
+    from ftw.contenttemplates.testing import \
+        DEXTERITY_TEMPLATES_FUNCTIONAL_TESTING
+
+    class TestDexteritySetup(TestSetup):
+        # Run the same tests as in the super class, but with dexterity
+        # setup.  We may skip or change a few tests.
+
+        layer = DEXTERITY_TEMPLATES_FUNCTIONAL_TESTING
+        folder_type = 'Folder'
+
+        def test_change_id(self):
+            # Changing the id of copied dexterity items after the
+            # first edit does not work, as it only works on Archetypes
+            # add forms, so we skip this test.
+            pass

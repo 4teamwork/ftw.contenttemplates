@@ -3,6 +3,7 @@ from ftw.builder import create
 from ftw.contenttemplates.interfaces import IContentTemplatesSettings
 from ftw.contenttemplates.interfaces import ICreateFromTemplate
 from ftw.contenttemplates.testing import CONTENT_TEMPLATES_FUNCTIONAL_TESTING
+from ftw.contenttemplates.testing import HAS_DEXTERITY
 from plone.app.testing import login, setRoles
 from plone.app.testing import TEST_USER_ID
 from plone.app.testing import TEST_USER_NAME
@@ -15,6 +16,7 @@ from zope.component import queryUtility
 class TestDefaultTemplateFactory(TestCase):
 
     layer = CONTENT_TEMPLATES_FUNCTIONAL_TESTING
+    folder_type = 'folder'
 
     def setUp(self):
         super(TestDefaultTemplateFactory, self).setUp()
@@ -23,8 +25,8 @@ class TestDefaultTemplateFactory(TestCase):
         login(self.portal, TEST_USER_NAME)
         setRoles(self.portal, TEST_USER_ID, ['Manager'])
 
-        self.templates = create(Builder('folder').titled('Vorlagen'))
-        self.obj = create(Builder('folder'))
+        self.templates = create(Builder(self.folder_type).titled(u'Vorlagen'))
+        self.obj = create(Builder(self.folder_type))
 
     def get_factory(self, obj):
         return queryMultiAdapter((obj, obj.REQUEST), ICreateFromTemplate)
@@ -41,8 +43,8 @@ class TestDefaultTemplateFactory(TestCase):
                           'Adapter should no be available on portal')
 
     def test_templates(self):
-        create(Builder('folder').within(self.templates))
-        create(Builder('folder').within(self.templates))
+        create(Builder(self.folder_type).within(self.templates))
+        create(Builder(self.folder_type).within(self.templates))
         template_factory = self.get_factory(self.obj)
 
         self.assertEquals(2,
@@ -50,15 +52,15 @@ class TestDefaultTemplateFactory(TestCase):
                           'Expect two templates')
 
     def test_templates_from_multiple_locations(self):
-        templates2 = create(Builder('folder').titled('Vorlagen2'))
+        templates2 = create(Builder(self.folder_type).titled(u'Vorlagen2'))
         template_factory = self.get_factory(self.obj)
 
         registry = queryUtility(IRegistry)
         settings = registry.forInterface(IContentTemplatesSettings)
         settings.template_folder = [u'/vorlagen', u'/vorlagen2']
 
-        template1 = create(Builder('folder').within(self.templates))
-        template2 = create(Builder('folder').within(templates2))
+        template1 = create(Builder(self.folder_type).within(self.templates))
+        template2 = create(Builder(self.folder_type).within(templates2))
 
         self.assertEquals(2,
                           len(template_factory.templates()),
@@ -71,8 +73,8 @@ class TestDefaultTemplateFactory(TestCase):
             [item.getId for item in template_factory.templates()])
 
     def test_template_locations(self):
-        create(Builder('folder').titled('Vorlagen2'))
-        obj = create(Builder('folder'))
+        create(Builder(self.folder_type).titled(u'Vorlagen2'))
+        obj = create(Builder(self.folder_type))
         template_factory = self.get_factory(obj)
 
         registry = queryUtility(IRegistry)
@@ -83,7 +85,7 @@ class TestDefaultTemplateFactory(TestCase):
             template_factory.templatefolder_locations())
 
     def test_has_addable_templates(self):
-        create(Builder('folder').within(self.templates))
+        create(Builder(self.folder_type).within(self.templates))
         template_factory = self.get_factory(self.obj)
 
         self.assertTrue(template_factory.has_addable_templates(),
@@ -96,9 +98,9 @@ class TestDefaultTemplateFactory(TestCase):
             'Should be False, because there is no template')
 
     def test_create(self):
-        template = create(Builder('folder')
+        template = create(Builder(self.folder_type)
             .within(self.templates)
-            .titled('My template'))
+            .titled(u'My template'))
 
         template_factory = self.get_factory(self.obj)
 
@@ -113,3 +115,13 @@ class TestDefaultTemplateFactory(TestCase):
 
         with self.assertRaises(Exception):
             template_factory.create('/dummy/path')
+
+
+if HAS_DEXTERITY:
+    from ftw.contenttemplates.testing import \
+        DEXTERITY_TEMPLATES_FUNCTIONAL_TESTING
+
+    class TestDexterityDefaultTemplateFactory(TestDefaultTemplateFactory):
+
+        layer = DEXTERITY_TEMPLATES_FUNCTIONAL_TESTING
+        folder_type = 'Folder'
