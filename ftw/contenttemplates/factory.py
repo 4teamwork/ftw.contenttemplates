@@ -4,6 +4,7 @@ from ftw.contenttemplates.interfaces import ICreateFromTemplate
 from plone.memoize import view
 from plone.registry.interfaces import IRegistry
 from Products.CMFCore.interfaces._content import IContentish
+from Products.CMFCore.interfaces import ISiteRoot
 from Products.CMFCore.utils import getToolByName
 from Products.CMFPlone.interfaces.constrains import ISelectableConstrainTypes
 from zope.component import adapts
@@ -47,22 +48,21 @@ class TemplateFactory(object):
 
     @view.memoize_contextless
     def templates(self):
-        constrain = ISelectableConstrainTypes(self.context, None)
-        if constrain is None:
-            return []
-
         portal = getToolByName(self.context, 'portal_url').getPortalObject()
         catalog = getToolByName(self.context, 'portal_catalog')
+        # Build the query.
+        query = {"sort_on": "getObjPositionInParent"}
+        constrain = ISelectableConstrainTypes(self.context, None)
+        if constrain is not None:
+            # search only for addable types
+            query['portal_type'] = constrain.getImmediatelyAddableTypes()
+        base_path = '/'.join(portal.getPhysicalPath())
         brains = []
         for templatefolder_location in self.templatefolder_locations():
-            brains.extend(catalog(
-                    path={
-                        'query': '%s/%s' % (
-                            '/'.join(portal.getPhysicalPath()),
-                            templatefolder_location),
-                        'depth': 1},
-                    portal_type=constrain.getImmediatelyAddableTypes(),
-                    sort_on="getObjPositionInParent"))
+            query['path'] = {
+                'query': '%s/%s' % (base_path, templatefolder_location),
+                'depth': 1}
+            brains.extend(catalog(**query))
         return brains
 
     def templatefolder_locations(self):
@@ -75,3 +75,10 @@ class TemplateFactory(object):
 
     def has_addable_templates(self):
         return len(self.templates())
+
+
+class SiteRootTemplateFactory(TemplateFactory):
+    """Create content by copy&paste for (Plone) Site root."""
+
+    implements(ICreateFromTemplate)
+    adapts(ISiteRoot, Interface)

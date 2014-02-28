@@ -166,10 +166,19 @@ class TestSetup(unittest.TestCase):
                          'http://nohost/plone/folder/mynews')
 
     def test_does_not_fail_on_plone_site(self):
+        self._create_templates([{'id': 'f1',
+                                 'type': self.folder_type,
+                                 'title': 'f1'}])
         portal = self.layer['portal']
-        view = portal.restrictedTraverse('@@create_from_template')
-        self.assertIn('Creation from template is on root not possible',
-          view())
+        self._open_url("%s/create_from_template" % portal.absolute_url())
+        self.browser.getControl(name='template_path').getControl(
+            value='%s/f1' % self.templates_path).click()
+        self.browser.getControl(name='form.submitted').click()
+        # Note that archetypes has name='form.button.save' and
+        # dexterity has name='form.buttons.save'.  Both have 'Save' as
+        # value.
+        self.browser.getControl('Save').click()
+        self.assertEqual(portal.f1.Title(), 'f1')
 
 
 if HAS_DEXTERITY:

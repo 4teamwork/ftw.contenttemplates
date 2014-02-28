@@ -19,5 +19,6 @@
       />
 
     <adapter factory=".factory.TemplateFactory" />
+    <adapter factory=".factory.SiteRootTemplateFactory" />
 
 </configure>
