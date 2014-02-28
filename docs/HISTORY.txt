@@ -4,9 +4,8 @@ Changelog
 1.1.1 (unreleased)
 ------------------
 
-- Support creating from templates on the site root.  Note that the
-  action is not registered there, only on folders, but at least the
-  form can be called, if you want to.
+- Support creating from templates on the site root.  Register this
+  action on the Plone Site portal_type.
   [maurits]
 
 - Support dexterity.  The templates folder and the target folder can
