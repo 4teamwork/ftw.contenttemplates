@@ -1,7 +1,7 @@
 Changelog
 =========
 
-1.1.1 (unreleased)
+1.2.0 (2014-03-03)
 ------------------
 
 - Support creating from templates on the site root.  Register this
