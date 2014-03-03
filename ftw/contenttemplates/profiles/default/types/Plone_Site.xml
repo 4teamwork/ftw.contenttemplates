@@ -1,0 +1,10 @@
+<?xml version="1.0"?>
+<object name="Plone Site"
+        i18n:domain="plone" xmlns:i18n="http://xml.zope.org/namespaces/i18n">
+  <action title="Create from Template" action_id="create_from_template"
+          category="folder_factories" icon_expr="" link_target=""
+          condition_expr="context/@@create_from_template/has_addable_templates"
+          url_expr="string:${object_url}/create_from_template" visible="True">
+    <permission value="Add portal content"/>
+  </action>
+</object>

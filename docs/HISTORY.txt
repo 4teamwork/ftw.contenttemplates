@@ -4,6 +4,10 @@ Changelog
 1.1.1 (unreleased)
 ------------------
 
+- Support creating from templates on the site root.  Register this
+  action on the Plone Site portal_type.
+  [maurits]
+
 - Support dexterity.  The templates folder and the target folder can
   be a dexterity container.  The copied items can be dexterity items.
   [maurits]

@@ -37,10 +37,11 @@ class TestDefaultTemplateFactory(TestCase):
         self.assertTrue(template_factory,
                         'Default creator is not registered properly')
 
-    def test_not_registered_on_root(self):
+    def test_registered_on_root(self):
+        # Since 1.1.1 the portal can be adapted to a template factory.
         template_factory = self.get_factory(self.portal)
-        self.assertIsNone(template_factory,
-                          'Adapter should no be available on portal')
+        self.assertIsNotNone(template_factory,
+                             'Adapter should be available on portal')
 
     def test_templates(self):
         create(Builder(self.folder_type).within(self.templates))

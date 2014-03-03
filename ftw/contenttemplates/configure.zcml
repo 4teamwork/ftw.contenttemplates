@@ -18,6 +18,16 @@
       provides="Products.GenericSetup.interfaces.EXTENSION"
       />
 
+  <genericsetup:upgradeStep
+      title="Add create_from_template action to Plone Site"
+      description="Runs the typeinfo step"
+      source="1000"
+      destination="1001"
+      handler=".migration.run_typeinfo_step"
+      profile="ftw.contenttemplates:default"
+      />
+
     <adapter factory=".factory.TemplateFactory" />
+    <adapter factory=".factory.SiteRootTemplateFactory" />
 
 </configure>
