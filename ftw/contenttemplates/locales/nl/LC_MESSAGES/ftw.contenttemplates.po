@@ -1,0 +1,34 @@
+msgid ""
+msgstr ""
+"Project-Id-Version: PACKAGE VERSION\n"
+"POT-Creation-Date: 2014-04-08 18:56+0000\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI +ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=1; plural=0\n"
+"Language-Code: nl\n"
+"Language-Name: English\n"
+"Preferred-Encodings: utf-8 latin1\n"
+"Domain: DOMAIN\n"
+
+#: ./browser/create_from_template.py:30
+msgid "Creation aborted."
+msgstr "Aanmaken afgebroken."
+
+#: ./browser/create_from_template.py:44
+msgid "Please select a template to create a content from it."
+msgstr "Selecteer een sjabloon om een object mee aan te maken"
+
+#. Default: "Defines the path where the templates are."
+#: ./interfaces.py:11
+msgid "help_templates_location"
+msgstr "Dit is het map waar de sjablonen staan."
+
+#. Default: "Templates location"
+#: ./interfaces.py:10
+msgid "label_templates_location"
+msgstr "Locatie van de sjablonen"
+
