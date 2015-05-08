@@ -7,9 +7,9 @@ You can add a content using a template, the template will be copied from the tem
 Links
 =====
 
-- Github project repository: https://github.com/4teamwork/ftw.contenttemplates
-- Issue tracker: https://github.com/4teamwork/ftw.contenttemplates/issues
-- Package on pypi: http://pypi.python.org/pypi/ftw.contenttemplates
+- Github: https://github.com/4teamwork/ftw.contenttemplates
+- Issues: https://github.com/4teamwork/ftw.contenttemplates/issues
+- Pypi: http://pypi.python.org/pypi/ftw.contenttemplates
 - Continuous integration: https://jenkins.4teamwork.ch/search?q=ftw.contenttemplates
 
 
