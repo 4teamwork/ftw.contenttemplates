@@ -35,3 +35,9 @@ class ICreateFromTemplate(Interface):
     def create(template_path, **kwargs):
         """Create content from a template path"""
 
+
+class IFreshOutOfTheFactory(Interface):
+    """
+    This marker interface is added to an object right after the creation
+    from template.
+    """

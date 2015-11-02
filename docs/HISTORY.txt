@@ -4,7 +4,10 @@ Changelog
 1.2.2 (unreleased)
 ------------------
 
-- Nothing changed yet.
+- Remove stale objects by deleting the object created from template when
+  the user hits the cancel button on the edit form he's been redirected
+  to after having selected a template.
+  [mbaechtold]
 
 
 1.2.1 (2014-09-23)

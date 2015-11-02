@@ -1,3 +1,4 @@
+from ftw.testbrowser import browsing
 from ftw.contenttemplates.testing import CONTENT_TEMPLATES_FUNCTIONAL_TESTING
 from ftw.contenttemplates.testing import HAS_DEXTERITY
 from plone.app.testing import login, setRoles
@@ -179,6 +180,50 @@ class TestSetup(unittest.TestCase):
         # value.
         self.browser.getControl('Save').click()
         self.assertEqual(portal.f1.Title(), 'f1')
+
+    @browsing
+    def test_post_factory_edit_form_click_on_cancel_button(self, browser):
+        self._create_templates([{'id': 'f1',
+                                 'type': self.folder_type,
+                                 'title': 'Folder1',
+                                 'description': 'A simple description.'}])
+
+        browser.login().visit(self.folder, view='@@create_from_template')
+
+        # Create an object from template.
+        browser.fill({'template_path': '%s/f1' % self.templates_path}).submit()
+
+        # Instead of editing the object, which has just been created from
+        # template, hit the cancel button.
+        browser.get_mechbrowser().addheaders.remove(
+            ('X-zope-handle-errors', 'False')
+        )
+        browser.find('Cancel').click()
+
+        self.assertEqual(
+            0,
+            len(self.folder.getFolderContents()),
+            'The object should no longer exist but it still does.'
+        )
+
+    @browsing
+    def test_post_factory_edit_form_click_on_save_button(self, browser):
+        self._create_templates([{'id': 'f1',
+                                 'type': self.folder_type,
+                                 'title': 'Folder1',
+                                 'description': 'A simple description.'}])
+
+        browser.login().visit(self.folder, view='@@create_from_template')
+
+        # Create an object from template and save it.
+        browser.fill({'template_path': '%s/f1' % self.templates_path}).submit()
+        browser.find('Save').click()
+
+        self.assertEqual(
+            1,
+            len(self.folder.getFolderContents()),
+            'The object should exist but it does not.'
+        )
 
 
 if HAS_DEXTERITY:
