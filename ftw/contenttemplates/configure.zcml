@@ -2,6 +2,7 @@
     xmlns="http://namespaces.zope.org/zope"
     xmlns:i18n="http://namespaces.zope.org/i18n"
     xmlns:genericsetup="http://namespaces.zope.org/genericsetup"
+    xmlns:zcml="http://namespaces.zope.org/zcml"
     i18n_domain="ftw.contenttemplates">
 
   <includeDependencies package="." />
@@ -29,5 +30,31 @@
 
     <adapter factory=".factory.TemplateFactory" />
     <adapter factory=".factory.SiteRootTemplateFactory" />
+
+    <!-- Delete the object created from template when the user hits the
+    cancel button on the edit form he's been redirected to after having
+    selected a template. -->
+    <subscriber
+        for="Products.Archetypes.interfaces.IEditCancelledEvent"
+        handler=".events.delete_object_on_cancel"
+        />
+    <subscriber
+        zcml:condition="installed plone.dexterity"
+        for="plone.dexterity.interfaces.IEditCancelledEvent"
+        handler=".events.delete_object_on_cancel"
+        />
+
+    <!-- Removes the marker interface added to the object during creation
+    from template when the user edits the object after having selected a
+    template. -->
+    <subscriber
+        for="Products.Archetypes.interfaces.event.IObjectInitializedEvent"
+        handler=".events.remove_marker_interface_on_edit"
+        />
+    <subscriber
+        zcml:condition="installed plone.dexterity"
+        for="plone.dexterity.interfaces.IEditFinishedEvent"
+        handler=".events.remove_marker_interface_on_edit"
+        />
 
 </configure>
