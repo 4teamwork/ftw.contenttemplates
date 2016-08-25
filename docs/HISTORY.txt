@@ -4,6 +4,9 @@ Changelog
 1.2.2 (unreleased)
 ------------------
 
+- Drop compatibility with Plone 4.1 and Plone 4.2.
+  [mbaechtold]
+
 - Remove stale objects by deleting the object created from template when
   the user hits the cancel button on the edit form he's been redirected
   to after having selected a template.
