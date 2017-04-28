@@ -192,12 +192,6 @@ class TestSetup(unittest.TestCase):
 
         # Create an object from template.
         browser.fill({'template_path': '%s/f1' % self.templates_path}).submit()
-
-        # Instead of editing the object, which has just been created from
-        # template, hit the cancel button.
-        browser.get_mechbrowser().addheaders.remove(
-            ('X-zope-handle-errors', 'False')
-        )
         browser.find('Cancel').click()
 
         self.assertEqual(
